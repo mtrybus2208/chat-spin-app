@@ -81,6 +81,12 @@ resource "aws_iam_role_policy_attachment" "chat_spin_api_disconnect_handler_poli
   policy_arn = aws_iam_policy.chat_spin_api_disconnect_handler_policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "chat_spin_api_disconnect_handler_logging_policy_attachment" {
+  role       = aws_iam_role.chat_spin_api_disconnect_handler_role.name
+  policy_arn = aws_iam_policy.chat_spin_api_disconnect_handler_logging_policy.arn
+}
+
+
 # chat_spin_api_send_message_handler
 resource "aws_iam_policy" "chat_spin_api_send_message_handler_logging_policy" {
   description = "IAM policy allowing logging actions for send message handler lambda function."
@@ -120,3 +126,87 @@ resource "aws_iam_role_policy_attachment" "chat_spin_api_send_message_handler_po
   role       = aws_iam_role.chat_spin_api_send_message_handler_role.name
   policy_arn = aws_iam_policy.chat_spin_api_send_message_handler_policy.arn
 }
+
+# Dodaj do istniejących polityk
+
+data "aws_iam_policy_document" "dynamodb_access" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "dynamodb:GetItem",
+      "dynamodb:PutItem",
+      "dynamodb:UpdateItem",
+      "dynamodb:DeleteItem",
+      "dynamodb:Query",
+      "dynamodb:Scan",
+      "dynamodb:BatchWriteItem"
+    ]
+    resources = [
+      var.connections_table_arn,
+      "${var.connections_table_arn}/index/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "dynamodb_access" {
+  name   = "${var.prefix}-chat-spin-api-dynamodb-access"
+  policy = data.aws_iam_policy_document.dynamodb_access.json
+}
+
+# Dołącz politykę do ról Lambda
+resource "aws_iam_role_policy_attachment" "connect_handler_dynamodb" {
+  role       = aws_iam_role.chat_spin_api_connect_handler_role.name
+  policy_arn = aws_iam_policy.dynamodb_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "disconnect_handler_dynamodb" {
+  role       = aws_iam_role.chat_spin_api_disconnect_handler_role.name
+  policy_arn = aws_iam_policy.dynamodb_access.arn
+}
+
+resource "aws_iam_role_policy_attachment" "send_message_handler_dynamodb" {
+  role       = aws_iam_role.chat_spin_api_send_message_handler_role.name
+  policy_arn = aws_iam_policy.dynamodb_access.arn
+}
+
+# policy for api gateway management api send msgs
+# policy for api gateway management api send msgs
+data "aws_iam_policy_document" "websocket_management_policy_doc" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "execute-api:ManageConnections"
+    ]
+    resources = [
+      "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_apigatewayv2_api.chat_spin_api.id}/${var.stage}/POST/@connections/*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "websocket_management_policy" {
+  name   = "${var.prefix}-websocket-management-policy"
+  policy = data.aws_iam_policy_document.websocket_management_policy_doc.json
+}
+# /policy for api gateway management api send msgs
+# /policy for api gateway management api send msgs
+
+
+# attach policy to lambda roles
+# attach policy to lambda roles
+resource "aws_iam_role_policy_attachment" "connect_handler_websocket_management" {
+  role       = aws_iam_role.chat_spin_api_connect_handler_role.name
+  policy_arn = aws_iam_policy.websocket_management_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "disconnect_handler_websocket_management" {
+  role       = aws_iam_role.chat_spin_api_disconnect_handler_role.name
+  policy_arn = aws_iam_policy.websocket_management_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "send_message_handler_websocket_management" {
+  role       = aws_iam_role.chat_spin_api_send_message_handler_role.name
+  policy_arn = aws_iam_policy.websocket_management_policy.arn
+}
+
+# /attach policy to lambda roles
+# /attach policy to lambda roles

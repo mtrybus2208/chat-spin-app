@@ -20,4 +20,14 @@ variable "region" {
     error_message = "Must be a valid AWS region identifier."
   }
 }
+
+variable "connections_table_name" {
+  type        = string
+  description = "Name of the DynamoDB table storing connection information"
+}
+
+variable "connections_table_arn" {
+  type        = string
+  description = "ARN of the DynamoDB table storing connection information"
+}
  
