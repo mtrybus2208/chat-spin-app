@@ -1,4 +1,3 @@
-
 # S# bucket inny modul?
 
 resource "random_pet" "bucket_suffix" {
@@ -47,4 +46,11 @@ resource "aws_s3_object" "chat_spin_api_disconnect_handler" {
   key    = "chat-spin-api-send-message-handler.zip"
   source = data.archive_file.chat_spin_api_send_message_handler.output_path
   etag   = filemd5(data.archive_file.chat_spin_api_send_message_handler.output_path)
+}
+
+resource "aws_s3_object" "chat_spin_api_user_match_handler" {
+  bucket = aws_s3_bucket.chat_spin_api_lambda_bucket.id
+  key    = "chat-spin-api-user-match-handler.zip"
+  source = data.archive_file.chat_spin_api_user_match_handler.output_path
+  etag   = filemd5(data.archive_file.chat_spin_api_user_match_handler.output_path)
 }

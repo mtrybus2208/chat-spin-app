@@ -203,10 +203,62 @@ resource "aws_iam_role_policy_attachment" "disconnect_handler_websocket_manageme
   policy_arn = aws_iam_policy.websocket_management_policy.arn
 }
 
+# chat_spin_api_user_match_handler
+resource "aws_iam_policy" "chat_spin_api_user_match_handler_logging_policy" {
+  description = "IAM policy allowing logging actions for user match handler lambda function."
+  name        = "${var.prefix}-chat-spin-api-user-match-handler-logging-policy"
+  policy      = data.aws_iam_policy_document.chat_spin_api_user_match_handler_logging_policy_doc.json
+}
+
+resource "aws_iam_role" "chat_spin_api_user_match_handler_role" {
+  name               = "${var.prefix}-chat-spin-api-user-match-handler"
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "chat_spin_api_user_match_handler_logging_policy_attachment" {
+  role       = aws_iam_role.chat_spin_api_user_match_handler_role.name
+  policy_arn = aws_iam_policy.chat_spin_api_user_match_handler_logging_policy.arn
+}
+
+# gw lambda policy user match
+data "aws_iam_policy_document" "chat_spin_api_user_match_handler_policy_doc" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "apigateway:POST",
+      "apigateway:GET",
+      "apigateway:PUT"
+    ]
+    resources = [
+      "*"
+    ]
+  }
+}
+
+resource "aws_iam_policy" "chat_spin_api_user_match_handler_policy" {
+  name   = "${var.prefix}-chat-spin-api-user-match-handler-policy"
+  policy = data.aws_iam_policy_document.chat_spin_api_user_match_handler_policy_doc.json
+}
+
+resource "aws_iam_role_policy_attachment" "chat_spin_api_user_match_handler_policy_attachment" {
+  role       = aws_iam_role.chat_spin_api_user_match_handler_role.name
+  policy_arn = aws_iam_policy.chat_spin_api_user_match_handler_policy.arn
+}
+
+ 
+resource "aws_iam_role_policy_attachment" "user_match_handler_dynamodb" {
+  role       = aws_iam_role.chat_spin_api_user_match_handler_role.name
+  policy_arn = aws_iam_policy.dynamodb_access.arn
+}
+
+ 
+resource "aws_iam_role_policy_attachment" "user_match_handler_websocket_management" {
+  role       = aws_iam_role.chat_spin_api_user_match_handler_role.name
+  policy_arn = aws_iam_policy.websocket_management_policy.arn
+}
+ 
+
 resource "aws_iam_role_policy_attachment" "send_message_handler_websocket_management" {
   role       = aws_iam_role.chat_spin_api_send_message_handler_role.name
   policy_arn = aws_iam_policy.websocket_management_policy.arn
 }
-
-# /attach policy to lambda roles
-# /attach policy to lambda roles

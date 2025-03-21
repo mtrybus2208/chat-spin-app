@@ -6,3 +6,7 @@ export interface ChatSpinConnection {
   paired_with?: string;
   timestamp?: number;
 }
+export interface SocketMessage {
+  action: string;
+  data: unknown;
+}
