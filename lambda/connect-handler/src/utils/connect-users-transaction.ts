@@ -17,7 +17,6 @@ export const connectUsersTransaction = async (
   const transactParams = {
     TransactItems: [
       {
-        // Usuń stary rekord dla pierwszego użytkownika
         Delete: {
           TableName: process.env.CONNECTIONS_TABLE_NAME!,
           Key: {
@@ -27,7 +26,6 @@ export const connectUsersTransaction = async (
         },
       },
       {
-        // Wstaw nowy rekord dla pierwszego użytkownika
         Put: {
           TableName: process.env.CONNECTIONS_TABLE_NAME!,
           Item: {
@@ -41,7 +39,6 @@ export const connectUsersTransaction = async (
         },
       },
       {
-        // Usuń stary rekord dla drugiego użytkownika
         Delete: {
           TableName: process.env.CONNECTIONS_TABLE_NAME!,
           Key: {
@@ -51,7 +48,6 @@ export const connectUsersTransaction = async (
         },
       },
       {
-        // Wstaw nowy rekord dla drugiego użytkownika
         Put: {
           TableName: process.env.CONNECTIONS_TABLE_NAME!,
           Item: {

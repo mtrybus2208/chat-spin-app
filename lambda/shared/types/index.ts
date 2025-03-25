@@ -6,7 +6,14 @@ export interface ChatSpinConnection {
   paired_with?: string;
   timestamp?: number;
 }
+
+export enum EventAction {
+  CONNECTED = "connected",
+  DISCONNECTED = "disconnected",
+  SEND_MESSAGE = "sendMessage",
+  USER_MATCH = "userMatch",
+}
 export interface SocketMessage {
-  action: string;
+  action: EventAction;
   data: unknown;
 }

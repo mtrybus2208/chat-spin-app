@@ -61,7 +61,7 @@ data "archive_file" "chat_spin_api_disconnect_handler" {
   source_dir  = "${path.root}/../lambda/disconnect-handler/dist"
   output_path = "${path.root}/../lambda/disconnect-handler/build/disconnect-handler.zip"
 }
- 
+
 data "archive_file" "chat_spin_api_send_message_handler" {
   type        = "zip"
   source_dir  = "${path.root}/../lambda/send-message-handler/dist"

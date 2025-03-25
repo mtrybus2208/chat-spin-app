@@ -4,6 +4,7 @@ import {
   connectUsersTransaction,
   sendDataToConnection,
 } from "./utils";
+import { EventAction } from "../../shared/types";
 
 export const handler = async (
   event: APIGatewayProxyEvent
@@ -44,7 +45,7 @@ export const handler = async (
     const roomId = `${connectionId}-${pairedConnectionId}`;
 
     const message = {
-      action: "connected",
+      action: EventAction.CONNECTED,
       data: {
         roomId: roomId,
         connectionId,

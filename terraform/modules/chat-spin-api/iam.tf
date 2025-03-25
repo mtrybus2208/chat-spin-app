@@ -153,7 +153,6 @@ resource "aws_iam_policy" "dynamodb_access" {
   policy = data.aws_iam_policy_document.dynamodb_access.json
 }
 
-# Dołącz politykę do ról Lambda
 resource "aws_iam_role_policy_attachment" "connect_handler_dynamodb" {
   role       = aws_iam_role.chat_spin_api_connect_handler_role.name
   policy_arn = aws_iam_policy.dynamodb_access.arn
@@ -187,11 +186,7 @@ resource "aws_iam_policy" "websocket_management_policy" {
   name   = "${var.prefix}-websocket-management-policy"
   policy = data.aws_iam_policy_document.websocket_management_policy_doc.json
 }
-# /policy for api gateway management api send msgs
-# /policy for api gateway management api send msgs
 
-
-# attach policy to lambda roles
 # attach policy to lambda roles
 resource "aws_iam_role_policy_attachment" "connect_handler_websocket_management" {
   role       = aws_iam_role.chat_spin_api_connect_handler_role.name
@@ -245,18 +240,18 @@ resource "aws_iam_role_policy_attachment" "chat_spin_api_user_match_handler_poli
   policy_arn = aws_iam_policy.chat_spin_api_user_match_handler_policy.arn
 }
 
- 
+
 resource "aws_iam_role_policy_attachment" "user_match_handler_dynamodb" {
   role       = aws_iam_role.chat_spin_api_user_match_handler_role.name
   policy_arn = aws_iam_policy.dynamodb_access.arn
 }
 
- 
+
 resource "aws_iam_role_policy_attachment" "user_match_handler_websocket_management" {
   role       = aws_iam_role.chat_spin_api_user_match_handler_role.name
   policy_arn = aws_iam_policy.websocket_management_policy.arn
 }
- 
+
 
 resource "aws_iam_role_policy_attachment" "send_message_handler_websocket_management" {
   role       = aws_iam_role.chat_spin_api_send_message_handler_role.name

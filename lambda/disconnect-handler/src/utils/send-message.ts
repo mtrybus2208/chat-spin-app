@@ -1,11 +1,13 @@
 import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
 import { getApiGatewayManagementApiClient } from "../clients";
+import { SocketMessage } from "../../../shared/types";
 
 export const sendDataToConnection = async (
   connectionId: string,
-  message: any
+  message: SocketMessage
 ): Promise<boolean> => {
   const client = getApiGatewayManagementApiClient();
+
   const command = new PostToConnectionCommand({
     ConnectionId: connectionId,
     Data: JSON.stringify(message),
@@ -20,12 +22,9 @@ export const sendDataToConnection = async (
     console.error(`Error sending message to ${connectionId}:`, error);
 
     if (error.name === "GoneException") {
-      console.log(`Connection ${connectionId} is gone, cleaning up`);
       return false;
     }
 
     return false;
   }
 };
-
-// https://kvs-vishnu23.medium.com/understanding-websocket-api-in-amazon-api-gateway-60dc930307c6

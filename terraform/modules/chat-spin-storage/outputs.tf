@@ -6,4 +6,4 @@ output "connections_table_name" {
 output "connections_table_arn" {
   value       = aws_dynamodb_table.chat_spin_connections.arn
   description = "ARN of the DynamoDB connections table"
-} 
+}

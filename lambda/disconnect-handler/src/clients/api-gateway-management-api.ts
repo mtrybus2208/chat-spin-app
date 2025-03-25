@@ -5,12 +5,9 @@ let cachedClient: ApiGatewayManagementApiClient | null = null;
 export const getApiGatewayManagementApiClient =
   (): ApiGatewayManagementApiClient => {
     if (!cachedClient) {
-      const domainName = process.env.DOMAIN_NAME!;
+      const domainNameWithProtocol = process.env.DOMAIN_NAME!;
+      const domainName = domainNameWithProtocol.substring(6);
       const stage = process.env.STAGE!;
-
-      console.log({
-        domainName,
-      });
 
       cachedClient = new ApiGatewayManagementApiClient({
         endpoint: `https://${domainName}/${stage}`,

@@ -11,10 +11,10 @@ resource "aws_lambda_function" "chat_spin_api_connect_handler" {
 
   environment {
     variables = {
-  REGION                 = var.region
+      REGION                 = var.region
       CONNECTIONS_TABLE_NAME = var.connections_table_name
       DOMAIN_NAME            = aws_apigatewayv2_api.chat_spin_api.api_endpoint
-      STAGE                  = var.stage         
+      STAGE                  = var.stage
     }
   }
 }
@@ -46,10 +46,10 @@ resource "aws_lambda_function" "chat_spin_api_disconnect_handler" {
 
   environment {
     variables = {
-      REGION                = var.region
+      REGION                 = var.region
       CONNECTIONS_TABLE_NAME = var.connections_table_name
-      DOMAIN_NAME           = aws_apigatewayv2_api.chat_spin_api.api_endpoint
-      STAGE                 = var.stage
+      DOMAIN_NAME            = aws_apigatewayv2_api.chat_spin_api.api_endpoint
+      STAGE                  = var.stage
     }
   }
 }
@@ -81,10 +81,10 @@ resource "aws_lambda_function" "chat_spin_api_send_message_handler" {
 
   environment {
     variables = {
-      REGION                = var.region
+      REGION                 = var.region
       CONNECTIONS_TABLE_NAME = var.connections_table_name
-      DOMAIN_NAME           = aws_apigatewayv2_api.chat_spin_api.api_endpoint
-      STAGE                 = var.stage
+      DOMAIN_NAME            = aws_apigatewayv2_api.chat_spin_api.api_endpoint
+      STAGE                  = var.stage
     }
   }
 }
@@ -118,7 +118,7 @@ resource "aws_lambda_function" "chat_spin_api_user_match_handler" {
       REGION                 = var.region
       CONNECTIONS_TABLE_NAME = var.connections_table_name
       DOMAIN_NAME            = aws_apigatewayv2_api.chat_spin_api.api_endpoint
-      STAGE                  = var.stage         
+      STAGE                  = var.stage
     }
   }
 }

@@ -1,15 +1,12 @@
 import {
-  GetCommand,
   DeleteCommand,
   BatchWriteCommand,
   QueryCommand,
 } from "@aws-sdk/lib-dynamodb";
-import { PostToConnectionCommand } from "@aws-sdk/client-apigatewaymanagementapi";
-import {
-  getDynamoDBDocumentClient,
-  getApiGatewayManagementApiClient,
-} from "./clients";
 
+import { getDynamoDBDocumentClient } from "./clients";
+import { sendDataToConnection } from "./utils";
+import { EventAction } from "../../shared/types";
 export const handler = async (event: any) => {
   console.log(
     "DisConnect handler called with event:",
@@ -26,24 +23,20 @@ export const handler = async (event: any) => {
   const tableName = process.env.CONNECTIONS_TABLE_NAME as string;
 
   try {
-    // 1. Pobierz informacje o rozłączonym użytkowniku
-
     const queryResult = await dynamoDb.send(
       new QueryCommand({
         TableName: tableName,
-        KeyConditionExpression: "connection_id = :connectionId",
+        ExpressionAttributeNames: {
+          "#connId": "connection_id",
+        },
+        KeyConditionExpression: "#connId = :connectionId",
         ExpressionAttributeValues: {
           ":connectionId": connectionId,
         },
       })
     );
 
-    console.log({
-      queryResult,
-      "queryResult.Items": queryResult.Items,
-    });
-
-    if (!queryResult.Items || queryResult.Items.length === 0) {
+    if (!queryResult.Items || !queryResult.Items.length) {
       console.log(`No user found with connectionId: ${connectionId}`);
       return { statusCode: 200, body: "User was not connected" };
     }
@@ -55,7 +48,6 @@ export const handler = async (event: any) => {
       return { statusCode: 200, body: "User was not connected" };
     }
 
-    // 2. Usuń rekordy użytkownika
     const batchDeleteParams = {
       RequestItems: {
         [tableName]: [
@@ -81,15 +73,17 @@ export const handler = async (event: any) => {
 
     await dynamoDb.send(new BatchWriteCommand(batchDeleteParams));
 
-    // 3. Jeśli użytkownik miał partnera, powiadom go o rozłączeniu
     const pairedWithConnectionId = userData.paired_with;
 
     if (pairedWithConnectionId) {
       try {
-        // Powiadom partnera o rozłączeniu
-        await notifyPartnerAboutDisconnection(pairedWithConnectionId);
+        await sendDataToConnection(pairedWithConnectionId, {
+          action: EventAction.DISCONNECTED,
+          data: {
+            message: "Your chat partner has disconnected",
+          },
+        });
 
-        // Usuń lub zaktualizuj rekord partnera
         await dynamoDb.send(
           new DeleteCommand({
             TableName: tableName,
@@ -101,7 +95,6 @@ export const handler = async (event: any) => {
         );
       } catch (error) {
         console.error("Error handling partner connection:", error);
-        // Kontynuuj, nawet jeśli wystąpił błąd z partnerem
       }
     }
 
@@ -111,34 +104,3 @@ export const handler = async (event: any) => {
     return { statusCode: 500, body: "Internal server error" };
   }
 };
-
-async function notifyPartnerAboutDisconnection(partnerConnectionId: string) {
-  try {
-    const client = getApiGatewayManagementApiClient();
-    const message = {
-      type: "DISCONNECTED",
-      message: "Your chat partner has disconnected",
-    };
-
-    await client.send(
-      new PostToConnectionCommand({
-        ConnectionId: partnerConnectionId,
-        Data: Buffer.from(JSON.stringify(message)),
-      })
-    );
-
-    console.log(
-      `Successfully notified partner ${partnerConnectionId} about disconnection`
-    );
-  } catch (error: any) {
-    if (error.name === "GoneException") {
-      console.log(`Partner connection ${partnerConnectionId} already closed`);
-    } else {
-      console.error(
-        `Error sending disconnection notification to ${partnerConnectionId}:`,
-        error
-      );
-      throw error;
-    }
-  }
-}

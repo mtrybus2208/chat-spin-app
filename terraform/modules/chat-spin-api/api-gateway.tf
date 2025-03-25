@@ -12,7 +12,7 @@ resource "aws_apigatewayv2_route" "chat_spin_api_connect_route" {
   target    = "integrations/${aws_apigatewayv2_integration.connect_integration.id}"
 }
 
- 
+
 resource "aws_apigatewayv2_integration" "connect_integration" {
   api_id             = aws_apigatewayv2_api.chat_spin_api.id
   integration_type   = "AWS_PROXY"
@@ -20,9 +20,9 @@ resource "aws_apigatewayv2_integration" "connect_integration" {
   integration_method = "POST"
 }
 
- 
+
 # disconnect route
- resource "aws_apigatewayv2_route" "chat_spin_api_disconnect_route" {
+resource "aws_apigatewayv2_route" "chat_spin_api_disconnect_route" {
   api_id    = aws_apigatewayv2_api.chat_spin_api.id
   route_key = "$disconnect"
   target    = "integrations/${aws_apigatewayv2_integration.disconnect_integration.id}"
